@@ -24,11 +24,10 @@ clubs = loadClubs()
 def index():
     return render_template('index.html')
 
-@app.route('/showSummary',methods=['POST'])
+@app.route('/showSummary', methods=['POST'])
 def showSummary():
     club = [club for club in clubs if club['email'] == request.form['email']][0]
     return render_template('welcome.html',club=club,competitions=competitions)
-
 
 @app.route('/book/<competition>/<club>')
 def book(competition,club):
@@ -43,13 +42,30 @@ def book(competition,club):
 
 @app.route('/purchasePlaces',methods=['POST'])
 def purchasePlaces():
-    competition = [c for c in competitions if c['name'] == request.form['competition']][0]
-    club = [c for c in clubs if c['name'] == request.form['club']][0]
-    placesRequired = int(request.form['places'])
-    competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
-    flash('Great-booking complete!')
-    return render_template('welcome.html', club=club, competitions=competitions)
+    club_name = request.form['club']
+    competition_name = request.form['competition']
+    places_requested = int(request.form['places'])
 
+    # Find the club and competition
+    club = next((c for c in clubs if c['name'] == club_name), None)
+    competition = next((comp for comp in competitions if comp['name'] == competition_name), None)
+
+    # Check if club and competition exist
+    if not (club and competition):
+        flash("Invalid club or competition. Please try again.")
+        return redirect(url_for('index'))
+
+    # Check if the club has enough points
+    if int(club['points']) < places_requested:
+        flash("Insufficient points to book places.")
+        return redirect(url_for('index'))
+
+    # Deduct points and update available places
+    club['points'] =int(club['points']) - places_requested
+    competition['numberOfPlaces'] =int(competition['numberOfPlaces'])- places_requested
+
+    flash('Booking successful!')
+    return redirect(url_for('index'))
 
 # TODO: Add route for points display
 
