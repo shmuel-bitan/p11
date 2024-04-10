@@ -59,8 +59,10 @@ def purchasePlaces():
         return redirect(url_for('index'))
 
 
-    if places_requested > 12 :
-        flash("impossible to take more than 12 places")
+    # Check if there are enough places available ( issue 2)
+    if competition['numberOfPlaces'] < places_requested:
+        flash("Insufficient places available for booking.")
+        return redirect(url_for('index'))
     # Deduct points and update available places
     club['points'] =int(club['points']) - places_requested
     competition['numberOfPlaces'] =int(competition['numberOfPlaces'])- places_requested
