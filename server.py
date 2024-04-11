@@ -45,23 +45,19 @@ def book(competition,club):
 def purchasePlaces():
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = [c for c in clubs if c['name'] == request.form['club']][0]
-    places_requested = int(request.form['places'])
-    #  ( issue 3)
-    if places_requested > 12:
-        flash("Insufficient places available for booking.")
-        return redirect(url_for('index'))
+    placesRequired = int(request.form['places'])
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
     flash('Great-booking complete!')
     return render_template('welcome.html', club=club, competitions=competitions)
 
 
 # TODO: Add route for points display
-
+@app.route('/clubs')
+def show_clubs():
+    return render_template('clubs.html', clubs=clubs)
 
 @app.route('/logout')
 def logout():
     return redirect(url_for('index'))
-
-
 if __name__ == "__main__":
     app.run(debug=True)
