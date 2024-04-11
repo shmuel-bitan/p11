@@ -24,10 +24,20 @@ clubs = loadClubs()
 def index():
     return render_template('index.html')
 
-@app.route('/showSummary',methods=['POST'])
+@app.route('/showSummary', methods=['POST'])
 def showSummary():
-    club = [club for club in clubs if club['email'] == request.form['email']][0]
-    return render_template('welcome.html',club=club,competitions=competitions)
+    email = request.form['email']
+    club = None
+    for c in clubs:
+        if c['email'] == email:
+            club = c
+            break
+
+    if club is None:
+        flash('Invalid email or password. Please try again.', 'error')
+        return redirect(url_for('index'))
+
+    return render_template('welcome.html', club=club, competitions=competitions)
 
 
 @app.route('/book/<competition>/<club>')
